@@ -1,6 +1,6 @@
 import '../css/style.styl'
 import * as THREE from 'three'
-
+import GLTFLoader from 'three-gltf-loader';
 
 
 let divLeft = document.querySelector(".rotateLeft")
@@ -79,6 +79,25 @@ scene.add(wall1)
 let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1, 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 wall2.position.x=3
 scene.add(wall2)
+
+
+ 
+const loader = new GLTFLoader();
+loader.load(
+    './models/computer/computer.gltf',
+    ( gltf ) => {
+        // called when the resource is loaded
+        scene.add( gltf.scene );
+    },
+    ( xhr ) => {
+        // called while loading is progressing
+        console.log( `${( xhr.loaded / xhr.total * 100 )}% loaded` );
+    },
+    ( error ) => {
+        // called when loading has errors
+        console.error( 'An error happened', error );
+    },
+);
 
 
 /**

@@ -9,6 +9,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, '../src/index.html')
         }),
+        new CopyWebpackPlugin([{ from: 'static' }])
     ],
     entry: './src/scripts/index.js',
     output:
