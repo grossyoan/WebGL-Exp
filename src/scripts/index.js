@@ -43,6 +43,14 @@ window.addEventListener('resize', () =>
 const scene = new THREE.Scene()
 
 
+var planegeometry = new THREE.PlaneGeometry( 50, 50, 50 );
+var planematerial = new THREE.MeshBasicMaterial( {color: 0xff55ff, side: THREE.DoubleSide} );
+var plane = new THREE.Mesh( planegeometry, planematerial );
+plane.rotateX(-Math.PI * 0.5);
+plane.position.y=-1
+scene.add( plane );
+
+
 /**
  * Mesh
  */
@@ -93,19 +101,25 @@ function collision(direction, camera){
     // Test if we intersect with any obstacle mesh
     collisions = raycaster.intersectObjects(obstacles);
     // And disable that direction if we do
-    if (collisions.length > 0 && collisions[0].distance <= distance) {
+    if (collisions.length > 0 && collisions[0].distance <= distance) 
+    {
       // Yep, this.rays[i] gives us : 0 => up, 1 => up-left, 2 => left, ...
-      if ((i === 0 || i === 1 || i === 7) && direction.z === -1) {
+      if ((i === 0 || i === 1 || i === 7) && direction.z === -1) 
+      {
         direction.z = 0;
-        //console.log(camera.position)
-        console.log("hello")
-      } else if ((i === 3 || i === 4 || i === 5) && direction.z === 1) {
+      } 
+
+      else if ((i === 3 || i === 4 || i === 5) && direction.z === 1) 
+      {
         direction.z = 0;
-        console.log(a)
       }
-      if ((i === 1 || i === 2 || i === 3) && direction.x === 1) {
+ 
+      if ((i === 1 || i === 2 || i === 3) && direction.x === 1) 
+      {
         direction.x = 0;
-      } else if ((i === 5 || i === 6 || i === 7) && direction.x === -1) {
+      } 
+      else if ((i === 5 || i === 6 || i === 7) && direction.x === -1) 
+      {
         direction.x = 0;
       }
     }
@@ -130,6 +144,15 @@ scene.add(light)
  */
 let direction = 0
 let a = new THREE.Vector3();
+a.set(1,1,1)
+
+const keys= {
+    forward:false,
+    backward:false,
+    left:false,
+    right:false
+}
+
 const loop = () =>
 {
     window.requestAnimationFrame(loop)
@@ -137,99 +160,99 @@ const loop = () =>
     camera.rotation.x = - cursor.y *5
     camera.rotation.order = 'YXZ'
     camera.rotation.y = - cursor.x *5
-    if(movez == 1 && a.z != 0)
+
+    if(a.z != 0 && keys.forward)
     {
         camera.position.x  -= (Math.sin(camera.rotation.y)/50)
         camera.position.z -= (Math.cos(camera.rotation.y)/50)
-        camera.position.y += (Math.tan(camera.rotation.x)/50)
-        a.set(0,0,1)
+        a.z=1
     } 
-    if(moveq == 1 )
+    if(a.x != 0 && keys.left)
     {
         camera.position.x += (Math.sin(-camera.rotation.y - Math.PI/2)/50)
         camera.position.z += (-Math.cos(-camera.rotation.y - Math.PI/2)/50)
-        a.set(1,0,0)
+        a.x=-1
     } 
-    if(moves == 1 )
+    if(a.z != 0 && keys.backward)
     {
         camera.position.x  += (Math.sin(camera.rotation.y)/50)
         camera.position.z += (Math.cos(camera.rotation.y)/50)
-        camera.position.y -= (Math.tan(camera.rotation.x)/50)
-        a.set(0,0,-1)
+        a.z=-1
     } 
-    if(moved == 1 )
+    if(a.x != 0 && keys.right)
     {
         camera.position.x += (Math.sin(-camera.rotation.y + Math.PI/2)/50)
         camera.position.z += (-Math.cos(-camera.rotation.y + Math.PI/2)/50)
-        a.set(-1,0,0)
+        a.x=1
     } 
     collision(a,camera)
     // Renderer
     renderer.render(scene, camera)
 }
-let movez = 0
-
     window.addEventListener('keydown', (event) =>
     {
+        if(event.key == 'z' && !keys.forward)
+        {
+            keys.forward = true
+            a.z = 1
+        } 
+    })
+
+    window.addEventListener('keyup', (event) => {
+
         if(event.key == 'z')
         {
-            movez = 1
-            window.addEventListener('keyup', (event) => {
-                if(event.key == 'z')
-                {
-                    movez = 0
-                }
-            })
-
-        } 
+            keys.forward = false
+        }
     })
-    let moveq = 0
 
     window.addEventListener('keydown', (event) =>
     {
+        if(event.key == 'q' && !keys.left)
+        {
+            keys.left = true
+            a.x = -1        
+        } 
+    })
+
+    window.addEventListener('keyup', (event) => {
         if(event.key == 'q')
         {
-            moveq = 1
-            window.addEventListener('keyup', (event) => {
-                if(event.key == 'q')
-                {
-                    moveq = 0
-                }
-            })
-
-        } 
+            keys.left = false
+        }
     })
-    let moves = 0
 
     window.addEventListener('keydown', (event) =>
     {
+        if(event.key == 's' && !keys.backward)
+        {
+            keys.backward = true
+            a.z = -1        
+        } 
+    })
+
+    window.addEventListener('keyup', (event) => {
         if(event.key == 's')
         {
-            moves = 1
-            window.addEventListener('keyup', (event) => {
-                if(event.key == 's')
-                {
-                    moves = 0
-                }
-            })
-
-        } 
+            keys.backward = false
+        }
     })
-    let moved = 0
+
 
     window.addEventListener('keydown', (event) =>
     {
+        if(event.key == 'd' && !keys.right)
+        {
+            keys.right = true
+            a.x = 1        
+        } 
+    })
+
+    window.addEventListener('keyup', (event) => {
         if(event.key == 'd')
         {
-            moved = 1
-            window.addEventListener('keyup', (event) => {
-                if(event.key == 'd')
-                {
-                    moved = 0
-                }
-            })
-
-        } 
+            keys.right = false
+        }
     })
   
     loop()
