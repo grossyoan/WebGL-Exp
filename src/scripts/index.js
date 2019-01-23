@@ -1,6 +1,22 @@
 import '../css/style.styl'
 import * as THREE from 'three'
 
+
+/**
+ * Keyboard Status Vector
+ */
+
+let a = new THREE.Vector3();
+a.set(1,1,1)
+
+const keys= {
+    forward:false,
+    backward:false,
+    left:false,
+    right:false
+}
+
+
 /**
  * Cursor
  */
@@ -42,26 +58,26 @@ window.addEventListener('resize', () =>
  */
 const scene = new THREE.Scene()
 
-
-var planegeometry = new THREE.PlaneGeometry( 50, 50, 50 );
-var planematerial = new THREE.MeshBasicMaterial( {color: 0xff55ff, side: THREE.DoubleSide} );
-var plane = new THREE.Mesh( planegeometry, planematerial );
-plane.rotateX(-Math.PI * 0.5);
-plane.position.y=-1
-scene.add( plane );
+let floor = new THREE.Mesh( new THREE.PlaneGeometry( 50, 50, 50 ), new THREE.MeshBasicMaterial({color: 0xff55ff, side: THREE.DoubleSide}))
+floor.rotateX(-Math.PI * 0.5)
+floor.position.y=-1
+scene.add(floor)
 
 
 /**
  * Mesh
  */
-var geometry = new THREE.BoxBufferGeometry( 1, 1, 1 );
-var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-var mesh = new THREE.Mesh( geometry, material );
-scene.add( mesh );
+var wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
+scene.add(wall1)
 
+/**
+ * Raytracing Collision Array
+ */
 let walls = new Array()
-walls.push(mesh)
-console.log(walls)
+walls.push(wall1)
+
+
+
 /**
  * Camera
  */
@@ -84,49 +100,48 @@ let rays = [
     new THREE.Vector3(-1, 0, -1),
     new THREE.Vector3(-1, 0, 0),
     new THREE.Vector3(-1, 0, 1)
-  ];
-  let meshmesh = new THREE.Object3D();
+  ]
 
-function collision(direction, camera){
-    var collisions, i,
+    function collisionCheck(direction, camera)
+    {
+    let collisions, i,
     // Maximum distance from the origin before we consider collision
     distance = 1,
     // Get the obstacles array from our world
     obstacles = walls; //put tab of object 
-  // For each ray
-  for (i = 0; i < rays.length; i += 1) {
-    // We reset the raycaster to this direction
-    raycaster.set(camera.position, rays[i]);
-    //console.log(direction)
-    // Test if we intersect with any obstacle mesh
-    collisions = raycaster.intersectObjects(obstacles);
-    // And disable that direction if we do
-    if (collisions.length > 0 && collisions[0].distance <= distance) 
+    // For each ray
+    for (i = 0; i < rays.length; i += 1) 
     {
-      // Yep, this.rays[i] gives us : 0 => up, 1 => up-left, 2 => left, ...
-      if ((i === 0 || i === 1 || i === 7) && direction.z === -1) 
-      {
-        direction.z = 0;
-      } 
+        // We reset the raycaster to this direction
+        raycaster.set(camera.position, rays[i])
+        //console.log(direction)
+        // Test if we intersect with any obstacle mesh
+        collisions = raycaster.intersectObjects(obstacles)
+        // And disable that direction if we do
+        if (collisions.length > 0 && collisions[0].distance <= distance) 
+        {
+            // Yep, this.rays[i] gives us : 0 => up, 1 => up-left, 2 => left, ...
+            if ((i === 0 || i === 1 || i === 7) && direction.z === -1) 
+            {
+                direction.z = 0;
+            } 
 
-      else if ((i === 3 || i === 4 || i === 5) && direction.z === 1) 
-      {
-        direction.z = 0;
-      }
- 
-      if ((i === 1 || i === 2 || i === 3) && direction.x === 1) 
-      {
-        direction.x = 0;
-      } 
-      else if ((i === 5 || i === 6 || i === 7) && direction.x === -1) 
-      {
-        direction.x = 0;
-      }
+            else if ((i === 3 || i === 4 || i === 5) && direction.z === 1) 
+            {
+                direction.z = 0;
+            }
+        
+            if ((i === 1 || i === 2 || i === 3) && direction.x === 1) 
+            {
+                direction.x = 0;
+            } 
+            else if ((i === 5 || i === 6 || i === 7) && direction.x === -1) 
+            {
+                direction.x = 0;
+            }
+         }
     }
-  }
 }
-
-
 
 /**
  * Renderer
@@ -137,21 +152,19 @@ renderer.shadowMap.enabled = true
 document.body.appendChild(renderer.domElement)
 
 
+
+/**
+ * Lights
+ */
+
 let light = new THREE.AmbientLight(0xff55ff,1)
 scene.add(light)
+
+
+
 /**
  * Loop
  */
-let direction = 0
-let a = new THREE.Vector3();
-a.set(1,1,1)
-
-const keys= {
-    forward:false,
-    backward:false,
-    left:false,
-    right:false
-}
 
 const loop = () =>
 {
@@ -185,10 +198,18 @@ const loop = () =>
         camera.position.z += (-Math.cos(-camera.rotation.y + Math.PI/2)/50)
         a.x=1
     } 
-    collision(a,camera)
+    collisionCheck(a,camera)
+
     // Renderer
     renderer.render(scene, camera)
 }
+
+
+/**
+ * Keymaps listeners
+ */
+
+
     window.addEventListener('keydown', (event) =>
     {
         if(event.key == 'z' && !keys.forward)
