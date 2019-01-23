@@ -67,14 +67,21 @@ scene.add(floor)
 /**
  * Mesh
  */
-var wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
+let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 scene.add(wall1)
+
+let wall2 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
+wall2.position.x=3
+scene.add(wall2)
+
 
 /**
  * Raytracing Collision Array
  */
 let walls = new Array()
 walls.push(wall1)
+walls.push(wall2)
+
 
 
 
