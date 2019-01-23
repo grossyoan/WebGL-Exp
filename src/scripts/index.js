@@ -70,7 +70,7 @@ scene.add(floor)
 let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 scene.add(wall1)
 
-let wall2 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
+let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1, 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 wall2.position.x=3
 scene.add(wall2)
 
