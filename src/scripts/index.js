@@ -2,6 +2,12 @@ import '../css/style.styl'
 import * as THREE from 'three'
 
 
+
+let divLeft = document.querySelector(".rotateLeft")
+let autoRotateLeft = false
+
+let divRight = document.querySelector(".rotateRight")
+let autoRotateRight = false
 /**
  * Keyboard Status Vector
  */
@@ -88,9 +94,32 @@ walls.push(wall2)
 /**
  * Camera
  */
-const camera = new THREE.PerspectiveCamera(35, sizes.width / sizes.height)
+const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
 camera.position.z = 3
 scene.add(camera)
+
+
+/**
+ * Mouse hover
+ */
+
+divLeft.addEventListener("mouseover", event => {
+    autoRotateLeft = true
+  })
+
+divLeft.addEventListener("mouseout", event => {
+    autoRotateLeft = false
+})
+
+divRight.addEventListener("mouseover", event => {
+    autoRotateRight = true
+  })
+
+divRight.addEventListener("mouseout", event => {
+    autoRotateRight = false
+})
+  
+
 
 
 /**
@@ -153,7 +182,7 @@ let rays = [
 /**
  * Renderer
  */
-const renderer = new THREE.WebGLRenderer()
+const renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, antialias: true})
 renderer.setSize(sizes.width, sizes.height)
 renderer.shadowMap.enabled = true
 document.body.appendChild(renderer.domElement)
@@ -179,7 +208,18 @@ const loop = () =>
     // Update camera
     camera.rotation.x = - cursor.y *5
     camera.rotation.order = 'YXZ'
-    camera.rotation.y = - cursor.x *5
+    if(autoRotateLeft)
+    {
+        camera.rotation.y+=0.01
+    }
+    else if(autoRotateRight)
+    {
+        camera.rotation.y-=0.01 
+    }
+    else
+    {
+        camera.rotation.y = - cursor.x *5
+    }
 
     if(a.z != 0 && keys.forward)
     {
