@@ -1,7 +1,7 @@
 import '../css/style.styl'
 import * as THREE from 'three'
-
-
+import GLTFLoader from 'three-gltf-loader';
+const loader = new GLTFLoader();
 let divLeft = document.querySelector(".rotateLeft")
 let autoRotateLeft = false
 
@@ -69,6 +69,12 @@ floor.rotateX(-Math.PI * 0.5)
 floor.position.y=-1
 scene.add(floor)
 
+/**
+ * Raytracing Collision Array
+ */
+
+
+let walls = new Array()
 
 /**
  * Mesh
@@ -78,15 +84,19 @@ scene.add(wall1)
 
 let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1 , 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 wall2.position.x=3
+// console.log(wall2)
 scene.add(wall2)
 
 
-/**
- * Raytracing Collision Array
- */
-let walls = new Array()
-walls.push(wall1)
-walls.push(wall2)
+
+// let bedAsset = loader.load(
+//     'models/bed/scene.gltf',
+//     function ( gltf ) {gltf.scene.position.y=-0.5,scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
+
+let crateAsset = loader.load(
+     'models/crate/scene.gltf',
+     function ( gltf ) {gltf.scene.position.y=-0.5,scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
+
 
 
 
@@ -135,7 +145,6 @@ let rays = [
     new THREE.Vector3(-1, 0, 0),
     new THREE.Vector3(-1, 0, 1)
   ]
-
     function collisionCheck(direction, camera)
     {
     let collisions, i,
@@ -154,6 +163,7 @@ let rays = [
         // And disable that direction if we do
         if (collisions.length > 0 && collisions[0].distance <= distance) 
         {
+            console.log('oui')
             // Yep, this.rays[i] gives us : 0 => up, 1 => up-left, 2 => left, ...
             if ((i === 0 || i === 1 || i === 7) && direction.z === -1) 
             {
@@ -183,6 +193,7 @@ let rays = [
 const renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, antialias: true})
 renderer.setSize(sizes.width, sizes.height)
 renderer.shadowMap.enabled = true
+renderer.gammaOutput = true
 document.body.appendChild(renderer.domElement)
 
 
@@ -190,9 +201,10 @@ document.body.appendChild(renderer.domElement)
 /**
  * Lights
  */
-
-let light = new THREE.AmbientLight(0xff55ff,1)
-scene.add(light)
+var light = new THREE.AmbientLight( 0x404040, 20     ); // soft white light
+scene.add( light );
+let hemiLight = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.6 ); 
+scene.add(hemiLight)
 
 
 
@@ -202,6 +214,7 @@ scene.add(light)
 
 const loop = () =>
 {
+    
     window.requestAnimationFrame(loop)
     // Update camera
     camera.rotation.x = - cursor.y *5
