@@ -122,6 +122,7 @@ let crateAsset = loader.load(
  */
 const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
 camera.position.z = 3
+camera.position.y = 0
 scene.add(camera)
 
 
@@ -237,6 +238,7 @@ const loop = () =>
     
     window.requestAnimationFrame(loop)
     // Update camera
+    
     camera.rotation.x = - cursor.y *5
     camera.rotation.order = 'YXZ'
     let cameraRotationTemp = camera.rotation.y
