@@ -64,10 +64,10 @@ window.addEventListener('resize', () =>
  */
 const scene = new THREE.Scene()
 
-let floor = new THREE.Mesh( new THREE.PlaneGeometry( 50, 50, 50 ), new THREE.MeshBasicMaterial({color: 0xff55ff, side: THREE.DoubleSide}))
-floor.rotateX(-Math.PI * 0.5)
-floor.position.y=-1
-scene.add(floor)
+// let floor = new THREE.Mesh( new THREE.PlaneGeometry( 50, 50, 50 ), new THREE.MeshBasicMaterial({color: 0xff55ff, side: THREE.DoubleSide}))
+// floor.rotateX(-Math.PI * 0.5)
+// floor.position.y=-1
+// scene.add(floor)
 
 /**
  * Raytracing Collision Array
@@ -76,27 +76,43 @@ scene.add(floor)
 
 let walls = new Array()
 
+
 /**
  * Mesh
  */
-let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
+let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), transparentMaterial )
+walls.push(wall1)
 scene.add(wall1)
 
 let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1 , 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 wall2.position.x=3
 // console.log(wall2)
 scene.add(wall2)
-
+walls.push(wall2)
 
 
 // let bedAsset = loader.load(
 //     'models/bed/scene.gltf',
 //     function ( gltf ) {gltf.scene.position.y=-0.5,scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
 
+
+
+let transparentMaterial = new THREE.MeshBasicMaterial()
+transparentMaterial.visible = false
+let crateAssetHitbox = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), transparentMaterial )
+walls.push(crateAssetHitbox)
+scene.add(crateAssetHitbox)
 let crateAsset = loader.load(
      'models/crate/scene.gltf',
      function ( gltf ) {gltf.scene.position.y=-0.5,scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
 
+
+
+     let corridor = loader.load(
+        'models/corridor2/scene.gltf',
+        function ( gltf ) {gltf.scene.position.y=-1,scene.add( gltf.scene )})
+   
+   
 
 
 
@@ -201,7 +217,7 @@ document.body.appendChild(renderer.domElement)
 /**
  * Lights
  */
-var light = new THREE.AmbientLight( 0x404040, 20     ); // soft white light
+var light = new THREE.AmbientLight( 0x404040, 1     ); // soft white light
 scene.add( light );
 let hemiLight = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.6 ); 
 scene.add(hemiLight)
