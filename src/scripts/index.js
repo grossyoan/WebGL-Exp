@@ -1,6 +1,5 @@
 import '../css/style.styl'
 import * as THREE from 'three'
-import GLTFLoader from 'three-gltf-loader';
 
 
 let divLeft = document.querySelector(".rotateLeft")
@@ -8,6 +7,7 @@ let autoRotateLeft = false
 
 let divRight = document.querySelector(".rotateRight")
 let autoRotateRight = false
+
 /**
  * Keyboard Status Vector
  */
@@ -76,28 +76,9 @@ scene.add(floor)
 let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 scene.add(wall1)
 
-let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1, 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
+let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1 , 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
 wall2.position.x=3
 scene.add(wall2)
-
-
- 
-const loader = new GLTFLoader();
-loader.load(
-    './models/computer/computer.gltf',
-    ( gltf ) => {
-        // called when the resource is loaded
-        scene.add( gltf.scene );
-    },
-    ( xhr ) => {
-        // called while loading is progressing
-        console.log( `${( xhr.loaded / xhr.total * 100 )}% loaded` );
-    },
-    ( error ) => {
-        // called when loading has errors
-        console.error( 'An error happened', error );
-    },
-);
 
 
 /**
@@ -116,6 +97,7 @@ walls.push(wall2)
 const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
 camera.position.z = 3
 scene.add(camera)
+
 
 
 /**
@@ -137,9 +119,6 @@ divRight.addEventListener("mouseover", event => {
 divRight.addEventListener("mouseout", event => {
     autoRotateRight = false
 })
-  
-
-
 
 /**
  * Raycasting
