@@ -4,7 +4,7 @@ import GLTFLoader from 'three-gltf-loader';
 const loader = new GLTFLoader();
 let divLeft = document.querySelector(".rotateLeft")
 let autoRotateLeft = false
-
+let cameraRotationTemp
 let divRight = document.querySelector(".rotateRight")
 let autoRotateRight = false
 
@@ -80,15 +80,15 @@ let walls = new Array()
 /**
  * Mesh
  */
-let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), transparentMaterial )
-walls.push(wall1)
-scene.add(wall1)
+// let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), transparentMaterial )
+// walls.push(wall1)
+// scene.add(wall1)
 
-let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1 , 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
-wall2.position.x=3
-// console.log(wall2)
-scene.add(wall2)
-walls.push(wall2)
+// let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1 , 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
+// wall2.position.x=3
+// // console.log(wall2)
+// scene.add(wall2)
+// walls.push(wall2)
 
 
 // let bedAsset = loader.load(
@@ -99,7 +99,7 @@ walls.push(wall2)
 
 let transparentMaterial = new THREE.MeshBasicMaterial()
 transparentMaterial.visible = false
-let crateAssetHitbox = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), transparentMaterial )
+let crateAssetHitbox = new THREE.Mesh( new THREE.BoxBufferGeometry( 0.8, 0.5, 1.5), transparentMaterial )
 walls.push(crateAssetHitbox)
 scene.add(crateAssetHitbox)
 let crateAsset = loader.load(
@@ -130,21 +130,25 @@ scene.add(camera)
  * Mouse hover
  */
 
-divLeft.addEventListener("mouseover", event => {
-    autoRotateLeft = true
-  })
+// divLeft.addEventListener("mouseover", event => {
+//     autoRotateLeft = true
+//   })
 
-divLeft.addEventListener("mouseout", event => {
-    autoRotateLeft = false
-})
+// divLeft.addEventListener("mouseout", event => {
+//     autoRotateLeft = false
+//     camera.rotation.y=cameraRotationTemp
 
-divRight.addEventListener("mouseover", event => {
-    autoRotateRight = true
-  })
+// })
 
-divRight.addEventListener("mouseout", event => {
-    autoRotateRight = false
-})
+// divRight.addEventListener("mouseover", event => {
+//     autoRotateRight = true
+//   })
+
+// divRight.addEventListener("mouseout", event => {
+//     autoRotateRight = false
+//     camera.rotation.y=cameraRotationTemp
+
+// })
 
 /**
  * Raycasting
@@ -235,17 +239,23 @@ const loop = () =>
     // Update camera
     camera.rotation.x = - cursor.y *5
     camera.rotation.order = 'YXZ'
+    let cameraRotationTemp = camera.rotation.y
     if(autoRotateLeft)
     {
-        camera.rotation.y+=0.01
+        cameraRotationTemp +=0.01
+        camera.rotation.y=cameraRotationTemp
     }
     else if(autoRotateRight)
     {
-        camera.rotation.y-=0.01 
+        cameraRotationTemp -=0.01
+        camera.rotation.y=cameraRotationTemp
     }
     else
     {
-        camera.rotation.y = - cursor.x *5
+
+        cameraRotationTemp = ((cursor.x)/10)*-1
+        if (cameraRotationTemp < -0.01 || cameraRotationTemp > 0.01)
+            camera.rotation.y += cameraRotationTemp
     }
 
     if(a.z != 0 && keys.forward)
