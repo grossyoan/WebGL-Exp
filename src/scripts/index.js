@@ -104,12 +104,12 @@ walls.push(crateAssetHitbox)
 scene.add(crateAssetHitbox)
 let crateAsset = loader.load(
      'models/crate/scene.gltf',
-     function ( gltf ) {gltf.scene.position.y=-0.5,scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
+     function ( gltf ) {gltf.scene.position.y=-0.5, gltf.scene.scale.set(0.005,0.005,0.005),scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
 
 
 
-     let corridor = loader.load(
-        'models/corridor2/scene.gltf',
+    let corridor = loader.load(
+       'models/corridor2/scene.gltf',
         function ( gltf ) {gltf.scene.position.y=-1,scene.add( gltf.scene )})
    
    
