@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
+    externals: ["fs"],
     devtool: 'source-map',
     plugins:
     [
@@ -11,11 +12,13 @@ module.exports = {
         }),
         new CopyWebpackPlugin([{ from: 'static' }])
     ],
-    entry: './src/scripts/index.js',
+    entry: {
+        index : './src/scripts/index.js',
+    },
     output:
     {
-        filename: 'bundle.[hash].js',
-        path: path.resolve(__dirname, '../dist')
+        path: path.join(__dirname, 'components'),
+        filename: '[name].js', // Hacky way to force webpack   to have multiple output folders vs multiple files per one path  
     },
     module:
     {

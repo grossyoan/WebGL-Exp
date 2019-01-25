@@ -2,18 +2,21 @@ import '../css/style.styl'
 import * as THREE from 'three'
 import GLTFLoader from 'three-gltf-loader';
 const loader = new GLTFLoader();
-let divLeft = document.querySelector(".rotateLeft")
-let autoRotateLeft = false
-let cameraRotationTemp
-let divRight = document.querySelector(".rotateRight")
-let autoRotateRight = false
+let canvasDOM = document.querySelector(".canvas")
+let controls
+let instructions = document.querySelector(".instructions")
+let blocker = document.querySelector(".blocker")
+var moveForward = false;
+var moveBackward = false;
+var moveLeft = false;
+var moveRight = false;
+var prevTime = performance.now();
+var velocity = new THREE.Vector3();
+var direction = new THREE.Vector3();
+import PointerLockControls from './PointerLockControls.js'
+var Physijs = require('physijs-webpack');
 
-/**
- * Keyboard Status Vector
- */
 
-let a = new THREE.Vector3();
-a.set(1,1,1)
 
 const keys= {
     forward:false,
@@ -62,55 +65,33 @@ window.addEventListener('resize', () =>
 /**
  * Scene
  */
-const scene = new THREE.Scene()
+const  scene = new Physijs.Scene;
 
-// let floor = new THREE.Mesh( new THREE.PlaneGeometry( 50, 50, 50 ), new THREE.MeshBasicMaterial({color: 0xff55ff, side: THREE.DoubleSide}))
-// floor.rotateX(-Math.PI * 0.5)
-// floor.position.y=-1
-// scene.add(floor)
-
-/**
- * Raytracing Collision Array
- */
-
-
-let walls = new Array()
-
-
-/**
- * Mesh
- */
-// let wall1 = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), transparentMaterial )
-// walls.push(wall1)
-// scene.add(wall1)
-
-// let wall2 = new THREE.Mesh( new THREE.SphereGeometry( 1 , 32, 32 ), new THREE.MeshBasicMaterial( { color: 0xffff00 } ) )
-// wall2.position.x=3
-// // console.log(wall2)
-// scene.add(wall2)
-// walls.push(wall2)
-
-
-// let bedAsset = loader.load(
-//     'models/bed/scene.gltf',
-//     function ( gltf ) {gltf.scene.position.y=-0.5,scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
+var ballGeometry = new THREE.SphereGeometry(90)
+, ballMaterial = new THREE.MeshNormalMaterial()
+, ball = new Physijs.SphereMesh(ballGeometry, ballMaterial);
+ball.position.z = -100;
+ball.position.y = 50;
+scene.add(ball);
 
 
 
-let transparentMaterial = new THREE.MeshBasicMaterial()
-transparentMaterial.visible = false
-let crateAssetHitbox = new THREE.Mesh( new THREE.BoxBufferGeometry( 0.8, 0.5, 1.5), transparentMaterial )
-walls.push(crateAssetHitbox)
+
+
+let transparentMaterial = new THREE.MeshBasicMaterial({color:0xff0000} )
+transparentMaterial.visible = true
+let crateAssetHitbox = new THREE.Mesh( new THREE.BoxBufferGeometry( 20, 50, 10), transparentMaterial )
+crateAssetHitbox.position.z=-50
 scene.add(crateAssetHitbox)
 let crateAsset = loader.load(
      'models/crate/scene.gltf',
-     function ( gltf ) {gltf.scene.position.y=-0.5, gltf.scene.scale.set(0.005,0.005,0.005),scene.add( gltf.scene ),walls.push(gltf.scene.children[0])},)
+     function ( gltf ) {gltf.scene.position.y=-0.5,gltf.scene.position.z=-50, gltf.scene.scale.set(0.05,0.05,0.05),scene.add( gltf.scene )},)
 
 
 
     let corridor = loader.load(
        'models/corridor2/scene.gltf',
-        function ( gltf ) {gltf.scene.position.y=-1,scene.add( gltf.scene )})
+        function ( gltf ) {gltf.scene.position.y=-1,gltf.scene.scale.set(10,10,10),scene.add( gltf.scene )})
    
    
 
@@ -121,92 +102,11 @@ let crateAsset = loader.load(
  * Camera
  */
 const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
-camera.position.z = 3
-camera.position.y = 0
 scene.add(camera)
+controls = new THREE.PointerLockControls( camera );
 
 
 
-/**
- * Mouse hover
- */
-
-// divLeft.addEventListener("mouseover", event => {
-//     autoRotateLeft = true
-//   })
-
-// divLeft.addEventListener("mouseout", event => {
-//     autoRotateLeft = false
-//     camera.rotation.y=cameraRotationTemp
-
-// })
-
-// divRight.addEventListener("mouseover", event => {
-//     autoRotateRight = true
-//   })
-
-// divRight.addEventListener("mouseout", event => {
-//     autoRotateRight = false
-//     camera.rotation.y=cameraRotationTemp
-
-// })
-
-/**
- * Raycasting
- */
-
-let raycaster = new THREE.Raycaster()
-let rays = [
-    new THREE.Vector3(0, 0, 1),
-    new THREE.Vector3(10, 0, 1),
-    new THREE.Vector3(1, 0, 0),
-    new THREE.Vector3(1, 0, -1),
-    new THREE.Vector3(0, 0, -1),
-    new THREE.Vector3(-1, 0, -1),
-    new THREE.Vector3(-1, 0, 0),
-    new THREE.Vector3(-1, 0, 1)
-  ]
-    function collisionCheck(direction, camera)
-    {
-    let collisions, i,
-    // Maximum distance from the origin before we consider collision
-    distance = 1,
-    // Get the obstacles array from our world
-    obstacles = walls; //put tab of object 
-    // For each ray
-    for (i = 0; i < rays.length; i += 1) 
-    {
-        // We reset the raycaster to this direction
-        raycaster.set(camera.position, rays[i])
-        //console.log(direction)
-        // Test if we intersect with any obstacle mesh
-        collisions = raycaster.intersectObjects(obstacles)
-        // And disable that direction if we do
-        if (collisions.length > 0 && collisions[0].distance <= distance) 
-        {
-            console.log('oui')
-            // Yep, this.rays[i] gives us : 0 => up, 1 => up-left, 2 => left, ...
-            if ((i === 0 || i === 1 || i === 7) && direction.z === -1) 
-            {
-                direction.z = 0;
-            } 
-
-            else if ((i === 3 || i === 4 || i === 5) && direction.z === 1) 
-            {
-                direction.z = 0;
-            }
-        
-            if ((i === 1 || i === 2 || i === 3) && direction.x === 1) 
-            {
-                direction.x = 0;
-            } 
-            else if ((i === 5 || i === 6 || i === 7) && direction.x === -1) 
-            {
-                direction.x = 0;
-            }
-         }
-    }
-}
 
 /**
  * Renderer
@@ -215,8 +115,18 @@ const renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, antialias
 renderer.setSize(sizes.width, sizes.height)
 renderer.shadowMap.enabled = true
 renderer.gammaOutput = true
-document.body.appendChild(renderer.domElement)
+canvasDOM.appendChild(renderer.domElement)
 
+
+
+var mesh = new Physijs.SphereMesh(
+    new THREE.SphereGeometry( 20 ),
+    new THREE.MeshBasicMaterial({ color: 0x888888 })
+);
+scene.add(mesh)
+mesh.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+    // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
+});
 
 
 /**
@@ -229,139 +139,107 @@ scene.add(hemiLight)
 
 
 
+var direction = new THREE.Vector3();
+instructions.addEventListener( 'click', function () {
+    controls.lock();
+}, false );
+controls.addEventListener( 'lock', function () {
+    instructions.style.display = 'none';
+    blocker.style.display = 'none';
+} );
+controls.addEventListener( 'unlock', function () {
+    blocker.style.display = 'block';
+    instructions.style.display = '';
+} );
+scene.add( controls.getObject() );
+
+var onKeyDown = function ( event ) {
+    switch ( event.keyCode ) {
+        case 38: // up
+        case 90: // w
+            moveForward = true;
+            break;
+        case 37: // left
+        case 81: // a
+            moveLeft = true;
+            break;
+        case 40: // down
+        case 83: // s
+            moveBackward = true;
+            break;
+        case 39: // right
+        case 68: // d
+            moveRight = true;
+            break;
+    }
+};
+var onKeyUp = function ( event ) {
+    switch ( event.keyCode ) {
+        case 38: // up
+        case 90: // w
+            moveForward = false;
+            break;
+        case 37: // left
+        case 81: // a
+            moveLeft = false;
+            break;
+        case 40: // down
+        case 83: // s
+            moveBackward = false;
+            break;
+        case 39: // right
+        case 68: // d
+            moveRight = false;
+            break;
+    }
+};
+document.addEventListener( 'keydown', onKeyDown, false );
+document.addEventListener( 'keyup', onKeyUp, false );
+
+
+
 /**
  * Loop
  */
 
 const loop = () =>
 {
-    
+    scene.simulate(); // run physics
+
     window.requestAnimationFrame(loop)
     // Update camera
-    
-    camera.rotation.x = - cursor.y *5
+    if ( controls.isLocked === true ) {
+        var time = performance.now();
+        var delta = ( time - prevTime ) / 1000;
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+        direction.z = Number( moveForward ) - Number( moveBackward );
+        direction.x = Number( moveLeft ) - Number( moveRight );
+        direction.normalize(); // this ensures consistent movements in all directions
+        if ( moveForward || moveBackward)
+        {
+            velocity.z -= direction.z * 400.0 * delta;
+        } 
+        if ( moveLeft || moveRight)
+        {
+            velocity.x -= direction.x * 400.0 * delta;
+        } 
+
+        controls.getObject().translateX( velocity.x * delta );
+        controls.getObject().translateY( velocity.y * delta );
+        controls.getObject().translateZ( velocity.z * delta );
+        if ( controls.getObject().position.y <15 ) {
+            velocity.y = 0;
+            controls.getObject().position.y = 15;
+        }
+        prevTime = time;
+    }
     camera.rotation.order = 'YXZ'
-    let cameraRotationTemp = camera.rotation.y
-    if(autoRotateLeft)
-    {
-        cameraRotationTemp +=0.01
-        camera.rotation.y=cameraRotationTemp
-    }
-    else if(autoRotateRight)
-    {
-        cameraRotationTemp -=0.01
-        camera.rotation.y=cameraRotationTemp
-    }
-    else
-    {
-
-        cameraRotationTemp = ((cursor.x)/10)*-1
-        if (cameraRotationTemp < -0.01 || cameraRotationTemp > 0.01)
-            camera.rotation.y += cameraRotationTemp
-    }
-
-    if(a.z != 0 && keys.forward)
-    {
-        camera.position.x  -= (Math.sin(camera.rotation.y)/50)
-        camera.position.z -= (Math.cos(camera.rotation.y)/50)
-        a.z=1
-    } 
-    if(a.x != 0 && keys.left)
-    {
-        camera.position.x += (Math.sin(-camera.rotation.y - Math.PI/2)/50)
-        camera.position.z += (-Math.cos(-camera.rotation.y - Math.PI/2)/50)
-        a.x=-1
-    } 
-    if(a.z != 0 && keys.backward)
-    {
-        camera.position.x  += (Math.sin(camera.rotation.y)/50)
-        camera.position.z += (Math.cos(camera.rotation.y)/50)
-        a.z=-1
-    } 
-    if(a.x != 0 && keys.right)
-    {
-        camera.position.x += (Math.sin(-camera.rotation.y + Math.PI/2)/50)
-        camera.position.z += (-Math.cos(-camera.rotation.y + Math.PI/2)/50)
-        a.x=1
-    } 
-    collisionCheck(a,camera)
 
     // Renderer
     renderer.render(scene, camera)
 }
-
-
-/**
- * Keymaps listeners
- */
-
-
-    window.addEventListener('keydown', (event) =>
-    {
-        if(event.key == 'z' && !keys.forward)
-        {
-            keys.forward = true
-            a.z = 1
-        } 
-    })
-
-    window.addEventListener('keyup', (event) => {
-
-        if(event.key == 'z')
-        {
-            keys.forward = false
-        }
-    })
-
-    window.addEventListener('keydown', (event) =>
-    {
-        if(event.key == 'q' && !keys.left)
-        {
-            keys.left = true
-            a.x = -1        
-        } 
-    })
-
-    window.addEventListener('keyup', (event) => {
-        if(event.key == 'q')
-        {
-            keys.left = false
-        }
-    })
-
-    window.addEventListener('keydown', (event) =>
-    {
-        if(event.key == 's' && !keys.backward)
-        {
-            keys.backward = true
-            a.z = -1        
-        } 
-    })
-
-    window.addEventListener('keyup', (event) => {
-        if(event.key == 's')
-        {
-            keys.backward = false
-        }
-    })
-
-
-    window.addEventListener('keydown', (event) =>
-    {
-        if(event.key == 'd' && !keys.right)
-        {
-            keys.right = true
-            a.x = 1        
-        } 
-    })
-
-    window.addEventListener('keyup', (event) => {
-        if(event.key == 'd')
-        {
-            keys.right = false
-        }
-    })
-  
     loop()
 
 
