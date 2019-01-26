@@ -10,6 +10,7 @@ var moveForward = false;
 var moveBackward = false;
 var moveLeft = false;
 var moveRight = false;
+let run = false;
 var prevTime = performance.now();
 var velocity = new THREE.Vector3();
 var direction = new THREE.Vector3();
@@ -68,17 +69,6 @@ window.addEventListener('resize', () =>
 const  scene = new Physijs.Scene;
 
 
-let ball = new Physijs.SphereMesh(
-    new THREE.SphereGeometry(20), 
-    new THREE.MeshNormalMaterial(.8, .4),
-    10,
-    
-    );
-
-
-ball.position.z = -25;
-ball.position.y = 50;
-scene.add(ball);
 
 
 let ground_material = Physijs.createMaterial(
@@ -96,33 +86,41 @@ let camera_material = Physijs.createMaterial(
 
 
 let transparentMaterial = new THREE.MeshBasicMaterial({color:0xff0000},.8, .4 )
-transparentMaterial.visible = true
+transparentMaterial.visible = false
 /*let crateAssetHitbox = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 10), transparentMaterial,0 )
 crateAssetHitbox.position.z=-30
 scene.add(crateAssetHitbox)
 */
 
-let wall1 = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 50), transparentMaterial,0 )
+let wall1 = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 700), transparentMaterial,0 )
 wall1.position.z=-30
-wall1.position.x=-30
+wall1.position.x=-70
 scene.add(wall1)
 
-let wall2 = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 50), transparentMaterial,0 )
+let wall2 = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 500), transparentMaterial,0 )
 wall2.position.z=-30
-wall2.position.x=30
+wall2.position.x=45
 scene.add(wall2)
 
 
 
-/*let crateAsset = loader.load(
-     'models/crate/scene.gltf',
-     function ( gltf ) {gltf.scene.position.y=-0.5,gltf.scene.position.z=-50, gltf.scene.scale.set(0.05,0.05,0.05),scene.add( gltf.scene )},)
 
-*/
 
-    let corridor = loader.load(
-       'models/corridor2/scene.gltf',
-        function ( gltf ) {gltf.scene.position.y=-1,gltf.scene.scale.set(10,10,10),scene.add( gltf.scene )})
+let bed = loader.load(
+     'models/bed/scene.gltf',
+     function ( gltf ) {gltf.scene.position.y=-25,gltf.scene.position.z=65,gltf.scene.position.x=-40, gltf.scene.scale.set(30,30,30),scene.add( gltf.scene )},)
+
+
+let bedHitbox = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 60, 30, 10), transparentMaterial,0 )
+bedHitbox.position.z=45
+bedHitbox.position.x=-10
+scene.add(bedHitbox)
+
+
+
+let corridor = loader.load(
+      'models/corridor/scene.gltf',
+        function ( gltf ) {gltf.scene.position.y=-1,gltf.scene.scale.set(0.01,0.01,0.01),gltf.scene.position.x=50,gltf.scene.position.y=20,gltf.scene.position.z=-200,scene.add( gltf.scene )})
 
 
 
@@ -164,7 +162,6 @@ let contact = true
 cameraHolder.addEventListener( 'collision', function(_event){
     //if(contact){contact = false}else{contact = true}
     //console.log(controls.getObject().position.z)
-    console.log(direction)
     controls.getObject().position.x = prevx[0]
     controls.getObject().position.z = prevz[0]
     //if(_event.position.x > controls.getObject().position.x)
@@ -228,6 +225,9 @@ var onKeyDown = function ( event ) {
         case 68: // d
             moveRight = true;
             break;
+        case 16:
+            run = true;
+            break;
     }
 };
 var onKeyUp = function ( event ) {
@@ -247,6 +247,9 @@ var onKeyUp = function ( event ) {
         case 39: // right
         case 68: // d
             moveRight = false;
+            break;
+        case 16:
+            run = false;
             break;
     }
 };
@@ -277,11 +280,26 @@ const loop = () =>
         direction.normalize(); // this ensures consistent movements in all directions
         if ( (moveForward || moveBackward) )
         {
-            velocity.z -= direction.z * 400.0 * delta;
+            if(run)
+            {
+                velocity.z -= direction.z * 1200.0 * delta;
+            }
+            else
+            {
+                velocity.z -= direction.z * 600.0 * delta;
+            }
         } 
         if ( (moveLeft || moveRight) )
         {
-            velocity.x -= direction.x * 400.0 * delta;
+            if(run)
+            {
+                velocity.x -= direction.x * 800.0 * delta;
+
+            }
+            else{
+                velocity.x -= direction.x * 400.0 * delta;
+
+            }
         } 
         cameraHolder.__dirtyPosition = true;
         cameraHolder.__dirtyRotation = true;
@@ -300,7 +318,7 @@ const loop = () =>
             prevx.splice(0,1)
             prevz.splice(0,1)
         }
-        console.log(prevx, prevz)
+        console.log(run)
         //console.log(prevx, prevz, controls.getObject().position.x,controls.getObject().position.z)
         prevTime = time;
     }
