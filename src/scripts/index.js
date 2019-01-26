@@ -87,6 +87,11 @@ let ground_material = Physijs.createMaterial(
     .4 // low restitution
 );
 
+let camera_material = Physijs.createMaterial(
+    new THREE.MeshBasicMaterial({color:0xff5555} ),
+    0, // high friction
+    0 // low restitution
+);
 
 
 
@@ -131,19 +136,18 @@ scene.add( ground );
 const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
 
 let cameraHolder = new Physijs.BoxMesh(
-    new THREE.CubeGeometry(2, 15, 2),
-    ground_material,
-    0, // mass
+    new THREE.CubeGeometry(2, 5, 2),
+    camera_material,
+    10, // mass
+
 );
-cameraHolder.position.y = 0
-cameraHolder.position.z = 0
-
+cameraHolder.position.set( 0, 0, 0 );
 scene.add(camera);
+
 scene.add(cameraHolder);
-cameraHolder.add(camera);
+cameraHolder.add(camera)
 
-
-controls = new THREE.PointerLockControls( cameraHolder );
+controls = new THREE.PointerLockControls( camera );
 
 /**
  * Renderer
@@ -232,7 +236,6 @@ document.addEventListener( 'keyup', onKeyUp, false );
 
 const loop = () =>
 {
-    scene.simulate(); // run physics
 
     window.requestAnimationFrame(loop)
     // Update camera
@@ -254,9 +257,16 @@ const loop = () =>
             velocity.x -= direction.x * 400.0 * delta;
         } 
 
+
+        cameraHolder.__dirtyPosition = true;
+        cameraHolder.__dirtyRotation = true;
         controls.getObject().translateX( velocity.x * delta );
         controls.getObject().translateY( velocity.y * delta );
         controls.getObject().translateZ( velocity.z * delta );
+        cameraHolder.translateX( velocity.x * delta );
+        cameraHolder.translateZ( velocity.z * delta );
+        cameraHolder.rotation.x = controls.getObject().rotation.x
+        cameraHolder.rotation.y = controls.getObject().rotation.y
         if ( controls.getObject().position.y <15 ) {
             velocity.y = 0;
             controls.getObject().position.y = 15;
@@ -264,6 +274,7 @@ const loop = () =>
         prevTime = time;
     }
     camera.rotation.order = 'YXZ'
+    scene.simulate(); // run physics
 
     // Renderer
     renderer.render(scene, camera)
