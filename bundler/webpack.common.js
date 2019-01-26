@@ -3,7 +3,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-    externals: ["fs"],
     devtool: 'source-map',
     plugins:
     [
@@ -18,7 +17,8 @@ module.exports = {
     output:
     {
         path: path.join(__dirname, 'components'),
-        filename: '[name].js', // Hacky way to force webpack   to have multiple output folders vs multiple files per one path  
+        filename: '[name].js', // Hacky way to force webpack   to have multiple output folders vs multiple files per one path
+        globalObject: 'this'  
     },
     module:
     {

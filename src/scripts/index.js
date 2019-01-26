@@ -67,33 +67,60 @@ window.addEventListener('resize', () =>
  */
 const  scene = new Physijs.Scene;
 
-var ballGeometry = new THREE.SphereGeometry(90)
-, ballMaterial = new THREE.MeshNormalMaterial()
-, ball = new Physijs.SphereMesh(ballGeometry, ballMaterial);
-ball.position.z = -100;
+
+let ball = new Physijs.SphereMesh(
+    new THREE.SphereGeometry(20), 
+    new THREE.MeshNormalMaterial(.8, .4),
+    10,
+    
+    );
+
+
+ball.position.z = -25;
 ball.position.y = 50;
 scene.add(ball);
 
 
+let ground_material = Physijs.createMaterial(
+    new THREE.MeshBasicMaterial({color:0xff0000} ),
+    .8, // high friction
+    .4 // low restitution
+);
 
 
 
-let transparentMaterial = new THREE.MeshBasicMaterial({color:0xff0000} )
+
+let transparentMaterial = new THREE.MeshBasicMaterial({color:0xff0000},.8, .4 )
 transparentMaterial.visible = true
-let crateAssetHitbox = new THREE.Mesh( new THREE.BoxBufferGeometry( 20, 50, 10), transparentMaterial )
-crateAssetHitbox.position.z=-50
+let crateAssetHitbox = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 10), transparentMaterial,0 )
+crateAssetHitbox.position.z=-30
 scene.add(crateAssetHitbox)
-let crateAsset = loader.load(
+
+
+
+/*let crateAsset = loader.load(
      'models/crate/scene.gltf',
      function ( gltf ) {gltf.scene.position.y=-0.5,gltf.scene.position.z=-50, gltf.scene.scale.set(0.05,0.05,0.05),scene.add( gltf.scene )},)
 
 
 
-    let corridor = loader.load(
+/*    let corridor = loader.load(
        'models/corridor2/scene.gltf',
         function ( gltf ) {gltf.scene.position.y=-1,gltf.scene.scale.set(10,10,10),scene.add( gltf.scene )})
    
-   
+*/
+
+
+
+
+let ground = new Physijs.BoxMesh(
+    new THREE.CubeGeometry(300, 1, 300),
+    ground_material,
+    0, // mass
+);
+ground.receiveShadow = true;
+scene.add( ground );
+
 
 
 
@@ -102,11 +129,21 @@ let crateAsset = loader.load(
  * Camera
  */
 const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
-scene.add(camera)
-controls = new THREE.PointerLockControls( camera );
+
+let cameraHolder = new Physijs.BoxMesh(
+    new THREE.CubeGeometry(2, 15, 2),
+    ground_material,
+    0, // mass
+);
+cameraHolder.position.y = 0
+cameraHolder.position.z = 0
+
+scene.add(camera);
+scene.add(cameraHolder);
+cameraHolder.add(camera);
 
 
-
+controls = new THREE.PointerLockControls( cameraHolder );
 
 /**
  * Renderer
@@ -119,20 +156,11 @@ canvasDOM.appendChild(renderer.domElement)
 
 
 
-var mesh = new Physijs.SphereMesh(
-    new THREE.SphereGeometry( 20 ),
-    new THREE.MeshBasicMaterial({ color: 0x888888 })
-);
-scene.add(mesh)
-mesh.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-    // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
-});
-
 
 /**
  * Lights
  */
-var light = new THREE.AmbientLight( 0x404040, 1     ); // soft white light
+var light = new THREE.AmbientLight( 0x404040, 1); // soft white light
 scene.add( light );
 let hemiLight = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.6 ); 
 scene.add(hemiLight)
