@@ -97,9 +97,20 @@ let camera_material = Physijs.createMaterial(
 
 let transparentMaterial = new THREE.MeshBasicMaterial({color:0xff0000},.8, .4 )
 transparentMaterial.visible = true
-let crateAssetHitbox = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 10), transparentMaterial,0 )
+/*let crateAssetHitbox = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 10), transparentMaterial,0 )
 crateAssetHitbox.position.z=-30
 scene.add(crateAssetHitbox)
+*/
+
+let wall1 = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 50), transparentMaterial,0 )
+wall1.position.z=-30
+wall1.position.x=-30
+scene.add(wall1)
+
+let wall2 = new Physijs.BoxMesh( new THREE.BoxBufferGeometry( 20, 50, 50), transparentMaterial,0 )
+wall2.position.z=-30
+wall2.position.x=30
+scene.add(wall2)
 
 
 
@@ -107,25 +118,24 @@ scene.add(crateAssetHitbox)
      'models/crate/scene.gltf',
      function ( gltf ) {gltf.scene.position.y=-0.5,gltf.scene.position.z=-50, gltf.scene.scale.set(0.05,0.05,0.05),scene.add( gltf.scene )},)
 
-
-
-/*    let corridor = loader.load(
-       'models/corridor2/scene.gltf',
-        function ( gltf ) {gltf.scene.position.y=-1,gltf.scene.scale.set(10,10,10),scene.add( gltf.scene )})
-   
 */
 
+    let corridor = loader.load(
+       'models/corridor2/scene.gltf',
+        function ( gltf ) {gltf.scene.position.y=-1,gltf.scene.scale.set(10,10,10),scene.add( gltf.scene )})
 
 
 
-let ground = new Physijs.BoxMesh(
+
+
+/*let ground = new Physijs.BoxMesh(
     new THREE.CubeGeometry(300, 1, 300),
     ground_material,
     0, // mass
 );
 ground.receiveShadow = true;
 scene.add( ground );
-
+*/
 
 
 
@@ -136,23 +146,32 @@ scene.add( ground );
 const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
 
 let cameraHolder = new Physijs.BoxMesh(
-    new THREE.CubeGeometry(2, 5, 2),
+    new THREE.CubeGeometry(5, 5, 5),
     camera_material,
     0, // mass
 
 );
 cameraHolder.position.set( 0, 3, 0 );
-cameraHolder._physijs.collision_flags = 4
+cameraHolder._physijs.collision_flags = 4;
+//cameraHolder.setCcdMotionThreshold(0.01)
 scene.add(camera);
 
 scene.add(cameraHolder);
 cameraHolder.add(camera)
 controls = new THREE.PointerLockControls( camera );
 
+let contact = true
+cameraHolder.addEventListener( 'collision', function(_event){
+    //if(contact){contact = false}else{contact = true}
+    //console.log(controls.getObject().position.z)
+    console.log(direction)
+    controls.getObject().position.x = prevx[0]
+    controls.getObject().position.z = prevz[0]
+    //if(_event.position.x > controls.getObject().position.x)
+     //   console.log("west")
+    //if(_event.position.x < controls.getObject().position.x)
 
-cameraHolder.addEventListener( 'collision', function(){
-    console.log('contact')
-} );
+});
 
 
 /**
@@ -234,8 +253,8 @@ var onKeyUp = function ( event ) {
 document.addEventListener( 'keydown', onKeyDown, false );
 document.addEventListener( 'keyup', onKeyUp, false );
 
-
-
+let prevx = new Array();
+let prevz = new Array();
 /**
  * Loop
  */
@@ -248,35 +267,41 @@ const loop = () =>
     if ( controls.isLocked === true ) {
         var time = performance.now();
         var delta = ( time - prevTime ) / 1000;
+        prevx.push(controls.getObject().position.x)
+        prevz.push(controls.getObject().position.z)
         velocity.x -= velocity.x * 10.0 * delta;
         velocity.z -= velocity.z * 10.0 * delta;
         velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
         direction.z = Number( moveForward ) - Number( moveBackward );
         direction.x = Number( moveLeft ) - Number( moveRight );
         direction.normalize(); // this ensures consistent movements in all directions
-        if ( moveForward || moveBackward)
+        if ( (moveForward || moveBackward) )
         {
             velocity.z -= direction.z * 400.0 * delta;
         } 
-        if ( moveLeft || moveRight)
+        if ( (moveLeft || moveRight) )
         {
             velocity.x -= direction.x * 400.0 * delta;
         } 
-
-
         cameraHolder.__dirtyPosition = true;
         cameraHolder.__dirtyRotation = true;
         controls.getObject().translateX( velocity.x * delta );
         controls.getObject().translateY( velocity.y * delta );
         controls.getObject().translateZ( velocity.z * delta );
-        cameraHolder.translateX( velocity.x * delta );
-        cameraHolder.translateZ( velocity.z * delta );
+        cameraHolder.position.x = controls.getObject().position.x
+        cameraHolder.position.z = controls.getObject().position.z
         cameraHolder.rotation.x = controls.getObject().rotation.x
         cameraHolder.rotation.y = controls.getObject().rotation.y
         if ( controls.getObject().position.y <15 ) {
             velocity.y = 0;
             controls.getObject().position.y = 15;
         }
+        if(prevx.length > 4){
+            prevx.splice(0,1)
+            prevz.splice(0,1)
+        }
+        console.log(prevx, prevz)
+        //console.log(prevx, prevz, controls.getObject().position.x,controls.getObject().position.z)
         prevTime = time;
     }
     camera.rotation.order = 'YXZ'
