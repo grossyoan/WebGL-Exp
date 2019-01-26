@@ -138,16 +138,22 @@ const camera = new THREE.PerspectiveCamera(70, sizes.width / sizes.height)
 let cameraHolder = new Physijs.BoxMesh(
     new THREE.CubeGeometry(2, 5, 2),
     camera_material,
-    10, // mass
+    0, // mass
 
 );
-cameraHolder.position.set( 0, 0, 0 );
+cameraHolder.position.set( 0, 3, 0 );
+cameraHolder._physijs.collision_flags = 4
 scene.add(camera);
 
 scene.add(cameraHolder);
 cameraHolder.add(camera)
-
 controls = new THREE.PointerLockControls( camera );
+
+
+cameraHolder.addEventListener( 'collision', function(){
+    console.log('contact')
+} );
+
 
 /**
  * Renderer
