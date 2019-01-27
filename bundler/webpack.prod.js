@@ -11,7 +11,7 @@ module.exports = webpackMerge(
         plugins:
         [
             new MiniCssExtractPlugin({
-                filename: 'style.[hash].css'
+                filename: 'style.css'
             }),
             new CleanWebpackPlugin(['dist'], { root: path.resolve(__dirname, '..') }),
         ],
