@@ -10,6 +10,18 @@ A WebGL Space Experience
 - PhysiJS physics and collision engine
 
 
+##Requirements
+
+- Node.js
+
+## Installation guide
+
+- Clone the repository
+- Type npm i to download the dependencies
+- Type npm run dev to run the game on a Node server
+- Type npm run build to compile the game
+
+
 ## TO DO
 
 - [x] Main menu

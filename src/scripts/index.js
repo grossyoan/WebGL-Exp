@@ -18,7 +18,7 @@ let run = false
 let prevTime = performance.now()
 let velocity = new THREE.Vector3()
 let contact = true
-
+let ambientLightTick  = 0
 
 const keys= {
     forward:false,
@@ -146,6 +146,35 @@ scene.add( ambientLight );
 var bulbLight1 = new THREE.PointLight( 0xff0000,1, 200,2);
 bulbLight1.position.set( 50, 50, 150);
 scene.add( bulbLight1 );
+
+let ambientLightAnim = () =>
+{
+    console.log(ambientLight.intensity)
+    let AmbientPlusOrMinus =Math.random();
+    if(AmbientPlusOrMinus<0.5){
+        AmbientPlusOrMinus =Math.floor(AmbientPlusOrMinus)
+    }
+    else{
+        AmbientPlusOrMinus= Math.ceil(AmbientPlusOrMinus)
+    }
+    if(AmbientPlusOrMinus===0 && ambientLight.intensity>0.3)
+    {
+        ambientLight.intensity-=0.01
+    }
+    else if(AmbientPlusOrMinus===0 && ambientLight.intensity<0.3)
+    {
+        ambientLight.intensity=0.3
+    }
+    else if(AmbientPlusOrMinus===1 && ambientLight.intensity<0.7)
+    {
+        ambientLight.intensity+=0.01
+    }
+    else if(AmbientPlusOrMinus===1 && ambientLight.intensity>0.7)
+    {
+        ambientLight.intensity=0.7
+    }
+}
+
 
 let bulb1Anim = () =>
 {
@@ -298,6 +327,9 @@ const loop = () =>
         prevTime = time;
     }
     bulb1Anim()
+    ambientLightAnim()
+    ambientLightTick++
+
     camera.rotation.order = 'YXZ'
     scene.simulate(); // run physics
     // Renderer
