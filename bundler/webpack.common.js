@@ -12,14 +12,14 @@ module.exports = {
         new CopyWebpackPlugin([{ from: 'static' }])
     ],
     entry: {
-        index : './src/scripts/index.js',
+        index : "./src/scripts/index.js",
+        PointerLock : "./src/scripts/PointerLockControls.js" 
     },
     output:
     {
-        path: path.join(__dirname, 'components'),
-        filename: '[name].js', // Hacky way to force webpack   to have multiple output folders vs multiple files per one path
-        globalObject: 'this'  
-    },
+        path: __dirname,
+        filename: "[name].js"
+        },
     module:
     {
         rules:

@@ -8,17 +8,20 @@ A WebGL Space Experience
 - Animated lights
 - Imported GLTF 3D Objects
 - PhysiJS physics and collision engine
-- 
 
 
 ## TO DO
 
-- [ ] Main menu
+- [x] Main menu
 - [ ] Michael Bay Explosion and staging
 - [ ] Sounds
 - [ ] Global lightnings
 - [ ] Interaction
 - [ ] Clean the code
+- [ ] Favicon
+- [x] Page title
+- [ ] Controls panel
+
 
 
 ## Known issues

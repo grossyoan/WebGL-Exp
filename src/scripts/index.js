@@ -2,13 +2,14 @@ import '../css/style.styl'
 import * as THREE from 'three'
 import GLTFLoader from 'three-gltf-loader'
 import PointerLockControls from './PointerLockControls.js'
+let heroButton = document.querySelector('.heroButton')
+let heroPage = document.querySelector('.hero')
 let Physijs = require('physijs-webpack')
 let DText = require('three.text')
 const loader = new GLTFLoader()
 let canvasDOM = document.querySelector(".canvas")
 let controls
-let instructions = document.querySelector(".instructions")
-let blocker = document.querySelector(".blocker")
+let pauseMenu = document.querySelector(".paused")
 let moveForward = false
 let moveBackward = false
 let moveLeft = false
@@ -161,17 +162,24 @@ let bulb1Anim = () =>
  * Movement controls
  */
 
+heroButton.addEventListener('click', () =>
+{
+    controls.lock()
+    heroPage.style.display = 'none'
+})
+
 let direction = new THREE.Vector3();
-instructions.addEventListener( 'click', function () {
+
+pauseMenu.addEventListener( 'click', function () {
     controls.lock()
 }, false )
+
 controls.addEventListener( 'lock', function () {
-    instructions.style.display = 'none'
-    blocker.style.display = 'none'
+    pauseMenu.style.display = 'none'
 } )
+
 controls.addEventListener( 'unlock', function () {
-    blocker.style.display = 'block'
-    instructions.style.display = ''
+    pauseMenu.style.display = 'flex'
 } )
 scene.add( controls.getObject() )
 
