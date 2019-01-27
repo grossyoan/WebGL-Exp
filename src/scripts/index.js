@@ -5,7 +5,6 @@ import PointerLockControls from './PointerLockControls.js'
 let heroButton = document.querySelector('.heroButton')
 let heroPage = document.querySelector('.hero')
 let Physijs = require('physijs-webpack')
-let DText = require('three.text')
 const loader = new GLTFLoader()
 let canvasDOM = document.querySelector(".canvas")
 let controls
@@ -21,10 +20,16 @@ let contact = true
 let backgroundSound = document.querySelector('.backgroundSound')
 let walkingSound = document.querySelector('.walkingSound')
 let pause = true
+let prevx = new Array()
+let prevz = new Array()
+
+
+/**
+ * Audio
+ */
 
 walkingSound.playbackRate = 1.5
 walkingSound.volume = 0.4
-
 walkingSound.addEventListener("ended", function()
 {
     walkingSound.currentTime = 0
@@ -242,7 +247,7 @@ heroButton.addEventListener('click', () =>
     heroPage.style.display = 'none'
     backgroundSound.play()
     backgroundSound.volume = 0.2
-    pause=false
+    pause = false
 })
 
 let direction = new THREE.Vector3()
@@ -250,25 +255,25 @@ let direction = new THREE.Vector3()
 pauseMenu.addEventListener('click', function()
 {
     controls.lock()
-    pause=false
+    pause = false
 }, false)
 
 controls.addEventListener('lock', function()
 {
     pauseMenu.style.display = 'none'
-    pause=false
+    pause = false
 })
 
 controls.addEventListener('unlock', function()
 {
     pauseMenu.style.display = 'flex'
-    pause=true
+    pause = true
 })
 scene.add(controls.getObject())
 
 let onKeyDown = function(event)
 {
-    if(!pause)
+    if (!pause)
     {
         walkingSound.play()
     }
@@ -323,8 +328,6 @@ let onKeyUp = function(event)
 document.addEventListener('keydown', onKeyDown, false)
 document.addEventListener('keyup', onKeyUp, false)
 
-let prevx = new Array()
-let prevz = new Array()
 /**
  * Loop
  */
