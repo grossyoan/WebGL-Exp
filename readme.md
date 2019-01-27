@@ -9,9 +9,7 @@ A WebGL Space Experience made in something like 3 days. Had a hard time discover
 - Animated lights
 - Imported GLTF 3D Objects
 - PhysiJS physics and collision engine
-- Background sound
-- Walking sounds
-
+- Background and walking sounds
 
 ## Requirements
 
@@ -30,13 +28,13 @@ A WebGL Space Experience made in something like 3 days. Had a hard time discover
 ## TO DO
 
 - [x] Main menu
-- [ ] Michael Bay Explosion and staging
 - [x] Sounds
 - [x] Dynamic global lighting
-- [ ] Interaction
 - [x] Clean the code
-- [x] Page title
+- [ ] Optimize 3D models
+- [ ] Interaction
 - [ ] Controls panel
+- [ ] Michael Bay Explosion and staging
 
 
 

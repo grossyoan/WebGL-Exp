@@ -20,9 +20,24 @@ let velocity = new THREE.Vector3()
 let contact = true
 let backgroundSound = document.querySelector('.backgroundSound')
 let walkingSound = document.querySelector('.walkingSound')
+let pause = true
 
 walkingSound.playbackRate = 1.5
 walkingSound.volume = 0.4
+
+walkingSound.addEventListener("ended", function()
+{
+    walkingSound.currentTime = 0
+    walkingSound.play()
+})
+backgroundSound.addEventListener("ended", function()
+{
+    backgroundSound.currentTime = 0
+    walkingSound.play()
+})
+
+
+
 
 const keys = {
     forward: false,
@@ -227,6 +242,7 @@ heroButton.addEventListener('click', () =>
     heroPage.style.display = 'none'
     backgroundSound.play()
     backgroundSound.volume = 0.2
+    pause=false
 })
 
 let direction = new THREE.Vector3()
@@ -234,43 +250,45 @@ let direction = new THREE.Vector3()
 pauseMenu.addEventListener('click', function()
 {
     controls.lock()
+    pause=false
 }, false)
 
 controls.addEventListener('lock', function()
 {
     pauseMenu.style.display = 'none'
+    pause=false
 })
 
 controls.addEventListener('unlock', function()
 {
     pauseMenu.style.display = 'flex'
+    pause=true
 })
 scene.add(controls.getObject())
 
 let onKeyDown = function(event)
 {
+    if(!pause)
+    {
+        walkingSound.play()
+    }
     switch (event.keyCode)
     {
         case 38: // up
         case 90: // z
             moveForward = true
-            walkingSound.play()
             break
         case 37: // left
         case 81: // q
             moveLeft = true
-            walkingSound.play()
             break
         case 40: // down
         case 83: // s
             moveBackward = true
-            walkingSound.play()
-
             break
         case 39: // right
         case 68: // d
             moveRight = true
-            walkingSound.play()
             break
         case 16:
             run = true
